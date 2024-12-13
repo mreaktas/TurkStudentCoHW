@@ -54,9 +54,8 @@ class Banka:
     - kullanicilar: Kayıtlı kullanıcıların listesi
     """
     def __init__(self):
-        """
-        Boş bir Banka nesnesi oluşturur.
-        """
+        # Boş bir Banka nesnesi oluşturur.
+        
         self.kullanicilar = []
 
     def hesap_ac(self, ad, bakiye):
@@ -91,39 +90,32 @@ class Banka:
                 return kullanici
         return None
 
-    def para_yatir(self, hesap_no, miktar):
+    def para_yatir(self, kullanici, miktar):
         """
         Belirli bir hesaba para yatırır.        
-        :param hesap_no: Kullanıcının hesap numarası
+        :param kullanici: Kullanıcı nesnesi
         :param miktar: Yatırılacak miktar
         """
-        kullanici = self.kullanici_bul(hesap_no)
-        if kullanici:
-            kullanici.para_yatir(miktar)
-        else:
-            print("Hesap bulunamadı.")
+        kullanici.para_yatir(miktar)
 
-    def para_cek(self, hesap_no, miktar):
+    def para_cek(self, kullanici, miktar):
         """
         Belirli bir hesaptan para çeker.        
-        :param hesap_no: Kullanıcının hesap numarası
+        :param kullanici: Kullanıcı nesnesi
         :param miktar: Çekilecek miktar
         """
-        kullanici = self.kullanici_bul(hesap_no)
-        if kullanici:
-            kullanici.para_cek(miktar)
-        else:
-            print("Hesap bulunamadı.")
+        kullanici.para_cek(miktar)
 
     def bakiye_sorgula(self, hesap_no):
         """
         Belirli bir hesabın bakiyesini sorgular.        
         :param hesap_no: Kullanıcının hesap numarası
-        :return: Hesap bakiyesi
+        :return: Kullanıcı nesnesi ve hesap bakiyesi
         """
         kullanici = self.kullanici_bul(hesap_no)
         if kullanici:
-            return kullanici.bakiye_sorgula()
+            kullanici.bakiye_sorgula()
+            return kullanici
         else:
             print("Hesap bulunamadı.")
             return None
@@ -142,8 +134,7 @@ class Banka:
 
 def admin_girisi(banka):
     """
-    Banka yetkilisi girişi ve tüm hesapları gösterme fonksiyonu.
-    
+    Banka yetkilisi girişi ve tüm hesapları gösterme fonksiyonu.    
     :param banka: Banka sınıfı nesnesi
     """
     kullanici_adi = input("Yetkili kullanıcı adını girin: ")
@@ -157,20 +148,19 @@ def admin_girisi(banka):
 
 def ana_menu(banka):
     """
-    Kullanıcı için ana menü ve etkileşim fonksiyonu.
-    
+    Kullanıcı için ana menü ve etkileşim fonksiyonu.    
     :param banka: Banka sınıfı nesnesi
     """
     while True:
-        print("\n--- BASİT BANKA SİSTEMİ ---")
+        print("\n--- BANKA SİSTEMİ ---")
         print("1. Hesap Aç")
-        print("2. Para Yatır")
-        print("3. Para Çek")
-        print("4. Bakiye Sorgula")
+        print("2. Bakiye Sorgula ve İşlemler")
+        print("3. Para Yatır")
+        print("4. Para Çek")
         print("5. Yetkili Girişi")
         print("6. Çıkış")
         
-        secim = input("Lütfen yapmak istediğiniz işlemi seçiniz (1-6): ")
+        secim = input("Lütfen yapmak istediğiniz işlemi seçin (1-6): ")
         
         if secim == '1':
             ad = input("Adınızı girin: ")
@@ -184,27 +174,67 @@ def ana_menu(banka):
         
         elif secim == '2':
             hesap_no = input("Hesap numaranızı girin: ")
-            while True:
-                try:
-                    miktar = float(input("Yatırılacak miktarı girin: "))
-                    break
-                except ValueError:
-                    print("Lütfen geçerli bir miktar girin.")
-            banka.para_yatir(hesap_no, miktar)
+            kullanici = banka.bakiye_sorgula(hesap_no)
+            if kullanici:
+                while True:
+                    print("\n--- İşlemler ---")
+                    print("1. Para Yatır")
+                    print("2. Para Çek")
+                    print("3. Ana Menüye Dön")
+                    
+                    islem_secim = input("Lütfen yapmak istediğiniz işlemi seçin (1-3): ")
+                    
+                    if islem_secim == '1':
+                        while True:
+                            try:
+                                miktar = float(input("Yatırılacak miktarı girin: "))
+                                break
+                            except ValueError:
+                                print("Lütfen geçerli bir miktar girin.")
+                        banka.para_yatir(kullanici, miktar)
+                    
+                    elif islem_secim == '2':
+                        while True:
+                            try:
+                                miktar = float(input("Çekilecek miktarı girin: "))
+                                break
+                            except ValueError:
+                                print("Lütfen geçerli bir miktar girin.")
+                        banka.para_cek(kullanici, miktar)
+                    
+                    elif islem_secim == '3':
+                        break
+                    
+                    else:
+                        print("Geçersiz seçenek. Lütfen 1-3 arasında bir numara seçin.")
         
         elif secim == '3':
             hesap_no = input("Hesap numaranızı girin: ")
-            while True:
-                try:
-                    miktar = float(input("Çekilecek miktarı girin: "))
-                    break
-                except ValueError:
-                    print("Lütfen geçerli bir miktar girin.")
-            banka.para_cek(hesap_no, miktar)
+            kullanici = banka.kullanici_bul(hesap_no)
+            if kullanici:
+                while True:
+                    try:
+                        miktar = float(input("Yatırılacak miktarı girin: "))
+                        break
+                    except ValueError:
+                        print("Lütfen geçerli bir miktar girin.")
+                banka.para_yatir(kullanici, miktar)
+            else:
+                print("Hesap bulunamadı.")
         
         elif secim == '4':
             hesap_no = input("Hesap numaranızı girin: ")
-            banka.bakiye_sorgula(hesap_no)
+            kullanici = banka.kullanici_bul(hesap_no)
+            if kullanici:
+                while True:
+                    try:
+                        miktar = float(input("Çekilecek miktarı girin: "))
+                        break
+                    except ValueError:
+                        print("Lütfen geçerli bir miktar girin.")
+                banka.para_cek(kullanici, miktar)
+            else:
+                print("Hesap bulunamadı.")
         
         elif secim == '5':
             admin_girisi(banka)
@@ -214,16 +244,19 @@ def ana_menu(banka):
             break
         
         else:
-            print("Geçersiz seçenek. Lütfen 1-6 arasında bir numara seçin.")
-
+            print("Geçersiz seçenek. Lütfen 1-6 arasında bir numara seçin")
 
 def main():
     # Banka nesnesini oluştur
     banka = Banka()
 
+    # Örnek banka hesapları ekle
+    banka.hesap_ac("Ali Veli", 5000)
+    banka.hesap_ac("Ayşe Yılmaz", 3000)
+    banka.hesap_ac("Mehmet Demir", 7000)
+
     # Ana menüyü başlat
     ana_menu(banka)
-
 
 # Uygulamayı çalıştır
 if __name__ == "__main__":
